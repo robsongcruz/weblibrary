@@ -1,0 +1,28 @@
+CREATE ROLE libuser WITH
+	LOGIN
+	NOSUPERUSER
+	CREATEDB
+	NOCREATEROLE
+	INHERIT
+	NOREPLICATION
+	CONNECTION LIMIT -1
+	PASSWORD 'xxxxxx';
+
+CREATE DATABASE web_library
+    WITH 
+    OWNER = libuser
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1;
+
+-- Database: web_library
+
+-- DROP DATABASE web_library;
+
+CREATE DATABASE web_library
+    WITH 
+    OWNER = libuser
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Portuguese_Brazil.1252'
+    LC_CTYPE = 'Portuguese_Brazil.1252'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;

@@ -1,43 +1,29 @@
-/*
-Desenvolver um webapp de uma biblioteca para realizar as operações:
-    Listar todos os autores disponíveis e seus livros;
-    Cadastrar, editar e excluir autor;
-    Cadastrar, editar e excluir livro;
+import express from 'express'
+import author from './author-router'
 
-Além das funcionalidades, serão considerados os extras:
-    Busca
-    Paginação
-    Usabilidade
-    Organização do código
-    Utilização de Docker para deploy
-*/
+const cors = require('cors')
+const body_parser = require('body-parser')
 
+const app = express()
 
-const express = require('express') //importacao do pacote
+app.use(body_parser.urlencoded({ extended: false }))
+app.use(body_parser.json())
+app.use(cors())
 
-const app = express() //instanciando express
+// catch 400
+app.use((err, req, res, next) => {
+    console.log(err.stack)
+    res.status(400).send('Error: ${res.originUrl} not found');
+    next()
+});
 
-const authors = [
-    {
-        first_name: 'Author',
-        last_name: 'One'
-    },
-    {
-        first_name: 'Author',
-        last_name: 'Two'
-    },
-    {
-        first_name: 'Author',
-        last_name: 'Three'
-    },
-    {
-        first_name: 'Author',
-        last_name: 'Four'
-    }
-  ]
-
-app.get('/api/author/', function (req, res) { //endereco da requisicao onde e retornado hello world
-  res.send(authors)
+// catch 500
+app.use((err, req, res, next) => {
+    console.log(err.stack)
+    res.status(500).send('Error: ${err}')
+    next()
 })
 
-app.listen(3000) //execucao do servidor
+author(app)
+
+export default app
