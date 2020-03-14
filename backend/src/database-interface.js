@@ -13,26 +13,37 @@ class DataBaseInterface {
         this._database = new Pool(this._config_data)
 
         this._database.on('connect', () => console.log('pool => connected to database'))
+
     }
 
     query(sqlcode) {
-        this._database
-        .query(sqlcode)
-        .then(res => {
-            console.log(`query - ${sqlcode}`)
-            // console.log(res)
+        let self = this
+
+        return new Promise(function(resolve, reject) {
+            self._database.query(sqlcode, function(err, result) {
+                    if(err)
+                        return reject(err)
+                    resolve(result.rows)
+                })
+
+                self._database.end()
         })
-        .catch(err => console.error(`Error executing query ${sqlcode}`, err.stack))
+
     }
 
     query_param(sqlcode, values) {
-        this._database
-        .query(sqlcode, values)
-        .then(res => {
-            console.log(`query param - ${sqlcode} ; values - ${values}`)
-            // console.log(res)
+        let self = this
+        
+        return new Promise(function(resolve, reject) {
+            self._database.query(sqlcode, values, function(err, result) {
+                    if(err)
+                        return reject(err)
+                    resolve(result.rows)
+                })
+
+                self._database.end()
         })
-        .catch(err => console.error(`Error executing query ${sqlcode}`, err.stack))
+
     }
 
     prepare_database() {

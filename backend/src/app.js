@@ -1,5 +1,6 @@
 import express from 'express'
-import author from './author-router'
+import author from './author/author-router'
+import book from './book/book-router'
 
 const cors = require('cors')
 const body_parser = require('body-parser')
@@ -13,17 +14,18 @@ app.use(cors())
 // catch 400
 app.use((err, req, res, next) => {
     console.log(err.stack)
-    res.status(400).send('Error: ${res.originUrl} not found');
+    res.status(400).send(`Error: ${res.originUrl} not found`);
     next()
 });
 
 // catch 500
 app.use((err, req, res, next) => {
     console.log(err.stack)
-    res.status(500).send('Error: ${err}')
+    res.status(500).send(`Error: ${err}`)
     next()
 })
 
 author(app)
+book(app)
 
 export default app
