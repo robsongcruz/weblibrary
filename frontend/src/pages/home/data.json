@@ -1,0 +1,20 @@
+{
+  "tableData": [
+    {
+      "category": "movie",
+      "qty": 540182
+    },
+    {
+      "category": "short",
+      "qty": 718154
+    },
+    {
+      "category": "tvEpisode",
+      "qty": 4543632
+    },
+    {
+      "category": "tvMovie",
+      "qty": 120679
+    }
+  ]
+}
