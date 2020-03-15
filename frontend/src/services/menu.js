@@ -22,12 +22,12 @@ export async function getLeftMenuData() {
         {
           title: 'Listing',
           key: 'book-list',
-          url: '/book/book-list',
+          url: '/book-list',
         },
         {
-          key: 'register',
-          title: 'Register',
-          url: '/pages/pages/register',
+          key: 'book-edit',
+          title: 'Register2',
+          url: '/book-edit',
         },
       ],
     },
@@ -37,14 +37,24 @@ export async function getLeftMenuData() {
       icon: 'icmn icmn-menu',
       children: [
         {
-          title: 'Listing',
+          title: 'List',
           key: 'author-list',
-          url: '/author/author-list',
+          url: '/author-list',
         },
         {
-          key: 'register',
+          key: 'author-edit',
           title: 'Register',
-          url: '/pages/pages/register',
+          url: '/author-edit',
+        },
+        {
+          key: 'author-details',
+          title: 'Register1',
+          url: '/author-details',
+        },
+        {
+          key: 'author-catalog',
+          title: 'Register3',
+          url: '/author-catalog',
         },
       ],
     },

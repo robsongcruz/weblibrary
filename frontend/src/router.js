@@ -32,12 +32,28 @@ const routes = [
     component: loadable(() => import('pages/home')),
   },
   {
-    path: '/book',
+    path: '/book-list',
     component: loadable(() => import('pages/book/book-list')),
   },
   {
-    path: '/author',
+    path: '/book-edit',
+    component: loadable(() => import('pages/book/book-form')),
+  },
+  {
+    path: '/author-list',
     component: loadable(() => import('pages/author/author-list')),
+  },
+  {
+    path: '/author-edit',
+    component: loadable(() => import('pages/author/author-form')),
+  },
+  {
+    path: '/author-details',
+    component: loadable(() => import('pages/author/product-details')),
+  },
+  {
+    path: '/author-catalog',
+    component: loadable(() => import('pages/author/products-catalog')),
   },
   {
     path: '/pages/antd',
