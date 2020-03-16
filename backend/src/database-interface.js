@@ -58,7 +58,7 @@ class DataBaseInterface {
                     CREATE TABLE IF NOT EXISTS book ( 
                         id SERIAL PRIMARY KEY,  
                         title  varchar(100), 
-                        subtitle   varchar(200),
+                        subtitle   varchar(600),
                         category   varchar(20)[3]
                     ); 
 

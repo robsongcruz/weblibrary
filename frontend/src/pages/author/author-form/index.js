@@ -208,21 +208,21 @@ class AuthorEdit extends React.Component {
                     <div className="col-lg-6">
                       <div className="form-group">
                         <FormItem required onChange={this.onValueChange} label="First Name">
-                          {form.getFieldDecorator('first_name')(<Input disabled={!add} placeholder="Author's first name" />)}
+                          {form.getFieldDecorator('first_name')(<Input disabled={!add} maxLength={40} placeholder="Author's first name" />)}
                         </FormItem>
                       </div>
                     </div>
                     <div className="col-lg-6">
                       <div className="form-group">
                         <FormItem required onChange={this.onValueChange} label="Last Name">
-                          {form.getFieldDecorator('last_name')(<Input disabled={!add} placeholder="Author's last name" />)}
+                          {form.getFieldDecorator('last_name')(<Input disabled={!add} maxLength={60} placeholder="Author's last name" />)}
                         </FormItem>
                       </div>
                     </div>
                     <div className="col-lg-6">
                       <div className="form-group">
                         <FormItem required onChange={this.onValueChange} label="Birthplace">
-                          {form.getFieldDecorator('birth_place')(<Input disabled={!add} placeholder="Author's birthplace" />)}
+                          {form.getFieldDecorator('birth_place')(<Input disabled={!add} maxLength={40} placeholder="Author's birthplace" />)}
                         </FormItem>
                       </div>
                     </div>

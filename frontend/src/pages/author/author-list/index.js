@@ -64,14 +64,7 @@ class TitleList extends React.Component {
     let self = this;
     let url = ""
 
-    // let search_by_year = this.state.searchText
-    let search_by_year = ''
-    if (search_by_year !== '') {
-      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/" + search_by_year + "/?page=" + page
-    } else {
-      // url = "http://" + config_server.ip + ":" + config_server.port + "/api/authors/all/?page=" + page
-      url = "http://" + configServer.ip + ":" + configServer.port + "/api/author?currentPage=" + page + "&pageSize=" + self.page_limit
-    }
+    url = "http://" + configServer.ip + ":" + configServer.port + "/api/author?currentPage=" + page + "&pageSize=" + self.page_limit
     
     self.setState({ loading: true });
 

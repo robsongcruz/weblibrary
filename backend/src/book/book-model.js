@@ -5,11 +5,12 @@ class BookModel {
     constructor() {
     }
 
-    get_all() {
+    get_all(current_page, page_size) {
 
-        let sqlcode = 'SELECT * FROM book'
-        
-        return new DataBaseInterface().query(sqlcode)
+        let sqlcode = 'SELECT *, count(*) OVER() AS full_count FROM book LIMIT $1 OFFSET $2'
+        let values = [page_size, (current_page - 1) * page_size]
+
+        return new DataBaseInterface().query_param(sqlcode, values)
         
     }
 

@@ -48,14 +48,6 @@ const routes = [
     component: loadable(() => import('pages/author/author-form')),
   },
   {
-    path: '/author-details',
-    component: loadable(() => import('pages/author/product-details')),
-  },
-  {
-    path: '/author-catalog',
-    component: loadable(() => import('pages/author/products-catalog')),
-  },
-  {
     path: '/pages/antd',
     component: loadable(() => import('pages/antd')),
     exact: true,

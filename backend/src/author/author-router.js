@@ -19,6 +19,7 @@ module.exports = function(app){
 
         const current_page = parseInt(req.query.currentPage)
         const page_size = parseInt(req.query.pageSize)
+        
         const result = new AuthorModel().get_all(current_page, page_size)
             .then(function(result) {
                 let form_result = {

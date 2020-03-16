@@ -26,7 +26,7 @@ export async function getLeftMenuData() {
         },
         {
           key: 'book-edit',
-          title: 'Register2',
+          title: 'Register',
           url: '/book-edit',
         },
       ],
@@ -45,16 +45,6 @@ export async function getLeftMenuData() {
           key: 'author-edit',
           title: 'Register',
           url: '/author-edit',
-        },
-        {
-          key: 'author-details',
-          title: 'Register1',
-          url: '/author-details',
-        },
-        {
-          key: 'author-catalog',
-          title: 'Register3',
-          url: '/author-catalog',
         },
       ],
     },

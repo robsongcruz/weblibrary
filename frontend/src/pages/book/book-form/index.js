@@ -1,226 +1,332 @@
+/* eslint-disable object-shorthand */
+/* eslint-disable no-unused-vars */
+/* eslint-disable consistent-return */
+/* eslint-disable array-callback-return */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable react/no-unused-state */
+/* eslint-disable react/no-access-state-in-setstate */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-else-return */
+/* eslint-disable prefer-template */
+/* eslint-disable dot-notation */
+/* eslint-disable func-names */
+/* eslint-disable prefer-const */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable camelcase */
 import React from 'react'
-import { Input, TreeSelect, Select, Button, Upload, Icon, message, Form } from 'antd'
+import { Input, Button, Form, Tooltip, Tag, message } from 'antd'
 import { Helmet } from 'react-helmet'
+import { PlusOutlined } from '@ant-design/icons';
 
-const { TreeNode } = TreeSelect
-const { Option } = Select
-const { Dragger } = Upload
-const { TextArea } = Input
+import configServer from "config.json"
+import TextArea from 'antd/lib/input/TextArea'
+
 const FormItem = Form.Item
 
-const dragprop = {
-  name: 'file',
-  multiple: true,
-  action: '//jsonplaceholder.typicode.com/posts/',
-  onChange(info) {
-    const { status } = info.file
-    if (status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully.`)
-    } else if (status === 'error') {
-      message.error(`${info.file.name} file upload failed.`)
-    }
-  },
-}
+
 
 @Form.create()
-class ProductEdit extends React.Component {
+class BookEdit extends React.Component {
+  state={
+    add: false,
+    save: false,
+    record: this.props.location.data,
+    insert: true,
+
+    tags: [],
+    inputVisible: false,
+    inputValue: '',
+  }
+
+  componentDidMount() {
+    const { record } = this.state
+    
+    if (record !== undefined) {
+      const {form} = this.props
+
+      const fields = this.props.location.data
+      
+      this.setState({ add: true, save: true, insert: false })
+
+      form.setFieldsValue({ 
+        "title": fields.title,
+        "subtitle": fields.subtitle
+      })
+      this.setState({tags: fields.category})
+
+    } else {
+      this.setState({ add: false, save: false })
+    }
+
+  }
+
+
+  onClickAdd = () => {
+    this.setState({add: true})
+  }
+
+  onClickCancel = () => {
+    this.setState({add: false, save: false, insert: true, record: undefined, tags: []})
+
+    const { form } = this.props
+    form.resetFields()
+  }
+
+  onValueChange = () => {
+    const { form } = this.props
+
+    const fields = form.getFieldsValue(['title', 'subtitle'])
+    const {tags} = this.state
+
+    if ((fields.title !== undefined) && (fields.title.length > 0) &&
+          (fields.subtitle !== undefined) && (fields.subtitle.length > 0) &&
+          (tags.length > 0)) {
+            this.setState({save: true});
+    } else {
+      this.setState({save: false});
+    }
+  }
+
+  onClickSave = () => {
+    const {insert} = this.state
+    if (insert) {
+      this.insertNewBook()
+    } else {
+      this.updateBookData()
+    }
+
+  }
+
+  insertNewBook = () => {
+
+    const self = this
+    const { form } = self.props
+
+    const fields = form.getFieldsValue(['title', 'subtitle'])
+    const {tags} = this.state
+
+    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/book/"
+
+    const book = {"book": {
+        "title": fields.title,
+        "subtitle": fields.subtitle,
+        "category": tags
+      }
+    }
+
+    console.log(book)
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(book)
+    }).then(function (response) {
+      if (response.status >= 400) {
+        
+        message.error('Bad response from server')
+        throw new Error("Bad response from server")
+      }
+      return response.json();
+    }).then(function (dataLoaded) {
+      
+      console.log(dataLoaded)
+      message.success("Saved", self.onClickCancel)
+
+    }).catch(function (err) {
+      console.log("ERROR >>>>>")
+      console.log(err)
+    })
+
+
+  }
+
+  updateBookData = () => {
+
+    const self = this
+    const { form } = self.props
+    const { record, tags } = self.state
+
+    const fields = form.getFieldsValue(['title', 'subtitle'])
+    
+    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/book/edit"
+
+    const book = {"book": {
+      "id": record.id,
+      "title": fields.title,
+      "subtitle": fields.subtitle,
+      "category": tags
+     }
+    } 
+    console.log(book)
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(book)
+    }).then(function (response) {
+      if (response.status >= 400) {
+        
+        message.error('Bad response from server')
+        throw new Error("Bad response from server")
+      }
+      return response.json();
+    }).then(function (dataLoaded) {
+      
+      console.log(dataLoaded)
+      message.success("Saved", self.onClickCancel)
+
+    }).catch(function (err) {
+      console.log("ERROR >>>>>")
+      
+      console.log(err)
+    })
+
+
+  }
+
+  handleClose = removedTag => {
+    const tags = this.state.tags.filter(tag => tag !== removedTag)
+    console.log(tags)
+    this.setState({ tags })
+  }
+
+  showInput = () => {
+    const {add} = this.state
+    if (add) {
+      this.setState({ inputVisible: true }, () => this.input.focus())
+    }
+    
+  }
+
+  handleInputChange = e => {
+    this.setState({ inputValue: e.target.value })
+  }
+
+  handleInputConfirm = () => {
+    const { inputValue } = this.state
+    let { tags } = this.state
+    if (inputValue && tags.indexOf(inputValue) === -1) {
+      tags = [...tags, inputValue]
+    }
+    console.log(tags)
+    this.setState({
+      tags,
+      inputVisible: false,
+      inputValue: '',
+    }, () => this.onValueChange())
+
+  }
+
+  saveInputRef = (input) => {
+    (this.input = input)
+  }
+
   render() {
     const { form } = this.props
+    const { add, save, tags, inputVisible, inputValue } = this.state
+
     return (
       <div>
         <Helmet title="Product Edit" />
         <div className="card">
           <div className="card-header">
             <div className="utils__title">
-              <strong>Product Edit</strong>
+              <strong>Book Info</strong>
             </div>
           </div>
           <div className="card-body">
-            <h4 className="text-black mb-3">
-              <strong>Main Parameters</strong>
-            </h4>
+            
             <Form layout="vertical">
               <div className="row">
+                
                 <div className="col-lg-8">
                   <div className="row">
-                    <div className="col-lg-6">
+
+                    <div className="col-lg-8">
                       <div className="form-group">
-                        <FormItem label="Username">
-                          {form.getFieldDecorator('title')(<Input placeholder="Product title" />)}
+                        <FormItem>
+                          <Button type="primary" className="mr-2" disabled={add} onClick={this.onClickAdd}>
+                              Add Book
+                          </Button>
                         </FormItem>
                       </div>
                     </div>
-                    <div className="col-lg-6">
+                    
+                    <div className="col-lg-8">
                       <div className="form-group">
-                        <FormItem label="SKU">
-                          {form.getFieldDecorator('sku')(<Input placeholder="Product SKU" />)}
+                        <FormItem required onChange={this.onValueChange} label="Title">
+                          {form.getFieldDecorator('title')(<Input disabled={!add} maxLength={100} placeholder="Book's title" />)}
                         </FormItem>
                       </div>
                     </div>
-                    <div className="col-lg-12">
+                    <div className="col-lg-10">
                       <div className="form-group">
+                        <FormItem required onChange={this.onValueChange} label="Subtitle or Plot">
+                          {form.getFieldDecorator('subtitle')(<TextArea rows={4} maxLength={600} disabled={!add} placeholder="Book's subtitle" />)}
+                        </FormItem>
+                      </div>
+                    </div>
+                    <div className="col-lg-8">
+                      <div className="form-group">
+                        {/* <FormItem required onChange={this.onValueChange} label="Category">
+                          {form.getFieldDecorator('category')(<Input disabled={!add} placeholder="Book's categories" />)}
+                        </FormItem> */}
                         <FormItem label="Category">
-                          {form.getFieldDecorator('category')(
-                            <TreeSelect
-                              id="product-edit-category"
-                              showSearch
-                              style={{ width: '100%', display: 'block' }}
-                              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                              placeholder="Please select category"
-                              allowClear
-                              multiple
-                              treeDefaultExpandAll
-                              onChange={this.onChangeCategory}
-                            >
-                              <TreeNode value="furniture" title="Furniture" key="0">
-                                <TreeNode value="tables" title="Tables" key="0-0" />
-                                <TreeNode value="chairs" title="Chairs" key="0-1">
-                                  <TreeNode
-                                    value="roundedchairs"
-                                    title="Rounded Chairs"
-                                    key="0-1-0"
-                                  />
-                                  <TreeNode
-                                    value="squaredchairs"
-                                    title="Squared Chairs"
-                                    key="0-1-1"
-                                  />
-                                </TreeNode>
-                              </TreeNode>
-                              <TreeNode value="electronics" title="Electronics" key="1">
-                                <TreeNode value="tv" title="TV" key="1-0" />
-                                <TreeNode value="consoles" title="Consoles" key="1-1">
-                                  <TreeNode value="playstation" title="Playstation" key="1-1-0" />
-                                  <TreeNode value="xbox" title="Xbox" key="1-1-1" />
-                                </TreeNode>
-                              </TreeNode>
-                            </TreeSelect>,
+                          {tags.map((tag, index) => {
+                            const isLongTag = tag.length > 20;
+                            const tagElem = (
+                              <Tag key={tag} closable={index >= 0} onClose={() => this.handleClose(tag)}>
+                                {isLongTag ? `${tag.slice(0, 20)}...` : tag}
+                              </Tag>
+                            );
+                            return isLongTag ? (
+                              <Tooltip title={tag} key={tag}>
+                                {tagElem}
+                              </Tooltip>
+                            ) : (
+                              tagElem
+                            );
+                          })}
+                          {inputVisible && (
+                            <Input
+                              ref={this.saveInputRef}
+                              type="text"
+                              style={{ width: 78 }}
+                              value={inputValue}
+                              onChange={this.handleInputChange}
+                              onBlur={this.handleInputConfirm}
+                              onPressEnter={this.handleInputConfirm}
+                              maxLength={20}
+                            />
+                          )}
+                          {!inputVisible && (
+                            <Tag className="site-tag-plus" onClick={this.showInput}>
+                              + New Category
+                            </Tag>
                           )}
                         </FormItem>
                       </div>
-                      <div className="form-group">
-                        <FormItem label="Short description">
-                          {form.getFieldDecorator('shortDescription')(
-                            <TextArea rows={3} id="product-edit-shordescr" />,
-                          )}
-                        </FormItem>
-                      </div>
-                      <div className="form-group">
-                        <FormItem label="Full description">
-                          {form.getFieldDecorator('fullDescription')(
-                            <TextArea rows={3} id="product-edit-fulldescr" />,
-                          )}
-                        </FormItem>
-                      </div>
-                      <h4 className="text-black mt-2 mb-3">
-                        <strong>Pricing</strong>
-                      </h4>
-                      <div className="row">
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <FormItem label="Total Price">
-                              {form.getFieldDecorator('totalPrice')(
-                                <Input id="product-edit-total-price" placeholder="Total Price" />,
-                              )}
-                            </FormItem>
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <FormItem label="Discount Price">
-                              {form.getFieldDecorator('discountPrice')(
-                                <Input
-                                  id="product-edit-discountprice"
-                                  placeholder="Discount Price"
-                                />,
-                              )}
-                            </FormItem>
-                          </div>
-                        </div>
-                      </div>
-                      <h4 className="text-black mt-2 mb-3">
-                        <strong>Attributes</strong>
-                      </h4>
-                      <div className="row">
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <FormItem label="Colors">
-                              {form.getFieldDecorator('colors')(
-                                <Select
-                                  id="product-edit-colors"
-                                  showSearch
-                                  style={{ width: '100%' }}
-                                  placeholder="Select a color"
-                                  optionFilterProp="children"
-                                  filterOption={(input, option) =>
-                                    option.props.children
-                                      .toLowerCase()
-                                      .indexOf(input.toLowerCase()) >= 0
-                                  }
-                                >
-                                  <Option value="blue">Blue</Option>
-                                  <Option value="red">Red</Option>
-                                  <Option value="green">Green</Option>
-                                </Select>,
-                              )}
-                            </FormItem>
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <FormItem label="Size">
-                              {form.getFieldDecorator('size')(
-                                <Select
-                                  id="product-edit-size"
-                                  showSearch
-                                  style={{ width: '100%' }}
-                                  placeholder="Select a size"
-                                  optionFilterProp="children"
-                                  filterOption={(input, option) =>
-                                    option.props.children
-                                      .toLowerCase()
-                                      .indexOf(input.toLowerCase()) >= 0
-                                  }
-                                >
-                                  <Option value="s">Small</Option>
-                                  <Option value="m">Middle</Option>
-                                  <Option value="xl">Extra large</Option>
-                                </Select>,
-                              )}
-                            </FormItem>
-                          </div>
-                        </div>
+                    </div>
+
+                    <div className="col-lg-12">
+                      <div className="row">  
                         <div className="col-lg-12">
                           <div className="form-actions">
-                            <Button type="primary" className="mr-2">
-                              Save Product
+                            <Button type="primary" disabled={!save} onClick={this.onClickSave} className="mr-2">
+                              Save Info
                             </Button>
-                            <Button type="default">Cancel</Button>
+                            <Button type="default" onClick={this.onClickCancel}>Cancel</Button>
                           </div>
                         </div>
                       </div>
                     </div>
+
                   </div>
                 </div>
-                <div className="col-lg-4">
-                  <Dragger {...dragprop} className="height-300 d-block mb-3">
-                    <p className="ant-upload-drag-icon">
-                      <Icon type="inbox" />
-                    </p>
-                    <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                    <p className="ant-upload-hint">
-                      Support for a single or bulk upload. Strictly prohibit from uploading company
-                      data or other band files
-                    </p>
-                  </Dragger>
-                  <div>
-                    <Upload>
-                      <Button>
-                        <Icon type="upload" /> Select File
-                      </Button>
-                    </Upload>
-                  </div>
-                </div>
+                
               </div>
             </Form>
           </div>
@@ -230,4 +336,4 @@ class ProductEdit extends React.Component {
   }
 }
 
-export default ProductEdit
+export default BookEdit
