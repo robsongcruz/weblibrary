@@ -41,7 +41,7 @@ const routes = [
   },
   {
     path: '/author-list',
-    component: loadable(() => import('pages/author/author-list')),
+    component: loadable(() => import('pages/home')),
   },
   {
     path: '/author-edit',

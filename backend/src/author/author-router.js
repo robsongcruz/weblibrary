@@ -2,19 +2,6 @@ const AuthorModel =  require('./author-model');
 
 module.exports = function(app){
 
-    /* app.get('/api/author?currentPage=:current_page&pageSize=:page_size', async (req, res, next) => {
-
-        const id = parseInt(req.params.id)
-        const result = new AuthorModel().get_all()
-            .then(function(result) {
-                // console.log("teste - " + result)
-                return res.json(result)
-            }).catch(function(err) {
-                console.log(err)
-                return next(e)
-            })
-    }) */
-
     app.get('/api/author', async (req, res, next) => {
 
         const current_page = parseInt(req.query.currentPage)
@@ -29,7 +16,7 @@ module.exports = function(app){
                 return res.json(form_result)
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
+                // return next(err)
             })
     })
 
@@ -41,7 +28,25 @@ module.exports = function(app){
                 return res.json(result)
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
+                return next(err)
+            })
+    })
+
+    app.get('/api/authorbooks', async (req, res, next) => {
+
+        const current_page = parseInt(req.query.currentPage)
+        const page_size = parseInt(req.query.pageSize)
+        
+        const result = new AuthorModel().get_all_ex(current_page, page_size)
+            .then(function(result) {
+                let form_result = {
+                    "count": result[0].full_count,
+                    "results": result
+                }
+                return res.json(form_result)
+            }).catch(function(err) {
+                console.log(err)
+                // return next(err)
             })
     })
 
@@ -59,7 +64,7 @@ module.exports = function(app){
                 return res.json(result)
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
+                return next(err)
             })
 
         }
@@ -105,7 +110,5 @@ module.exports = function(app){
         }
 
     })
-
-
 
 }

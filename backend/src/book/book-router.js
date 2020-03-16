@@ -16,7 +16,7 @@ module.exports = function(app){
                 return res.json(form_result)
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
+                return next(err)
             })
     })
 
@@ -28,7 +28,7 @@ module.exports = function(app){
                 return res.json(result)
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
+                return next(err)
             })
     })
 
@@ -46,7 +46,7 @@ module.exports = function(app){
                 return res.json(result)
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
+                return next(err)
             })
 
         }

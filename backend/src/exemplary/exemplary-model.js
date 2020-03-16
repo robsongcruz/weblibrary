@@ -1,15 +1,15 @@
 const DataBaseInterface =  require('../database-interface')
 
-class AuthorBookModel {
+class ExemplaryModel {
 
     constructor() {
     }
 
     get_all(current_page, page_size) {
 
-        let sqlcode = 'SELECT author.id, author.first_name, author.last_name, book.title, count(*) OVER() AS full_count FROM exemplary ' 
-                        + ' INNER JOIN author ON exemplary.author=author.id ' 
-                        + ' INNER JOIN book ON exemplary.book=book.id '
+        let sqlcode = 'SELECT author.id, author.first_name, author.last_name, author.birth_place, book.title, count(*) OVER() AS full_count FROM author ' 
+                        + ' LEFT JOIN exemplary ON exemplary.author=author.id '
+                        + ' LEFT JOIN book ON exemplary.book=book.id '
                         + ' LIMIT $1 OFFSET $2'
 
         let values = [page_size, (current_page - 1) * page_size]
@@ -32,7 +32,7 @@ class AuthorBookModel {
 
     get_author_by_book(id) {
 
-        let sqlcode = 'SELECT author.id, author.first_name, author.last_name count(*) OVER() AS full_count FROM exemplary ' 
+        let sqlcode = 'SELECT author.id, author.first_name, author.last_name, count(*) OVER() AS full_count FROM exemplary ' 
                         + ' INNER JOIN author ON exemplary.author=author.id ' 
                         + ' INNER JOIN book ON exemplary.book=book.id '
                         + ' WHERE book.id=$1'
@@ -71,4 +71,4 @@ class AuthorBookModel {
     }
 }
 
-module.exports = AuthorBookModel;
+module.exports = ExemplaryModel;

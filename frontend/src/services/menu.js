@@ -9,7 +9,7 @@ export async function getLeftMenuData() {
       divider: true,
     },
     {
-      title: 'Dashboard',
+      title: 'Main List',
       key: 'home',
       url: '/home/',
       icon: 'icmn icmn-home',
@@ -37,11 +37,6 @@ export async function getLeftMenuData() {
       icon: 'icmn icmn-menu',
       children: [
         {
-          title: 'List',
-          key: 'author-list',
-          url: '/author-list',
-        },
-        {
           key: 'author-edit',
           title: 'Register',
           url: '/author-edit',
@@ -51,31 +46,31 @@ export async function getLeftMenuData() {
     {
       divider: true,
     },
-    {
-      title: 'AntDesign Components',
-      key: 'antComponents',
-      icon: 'icmn icmn-menu',
-      url: '/pages/antd',
-    },
-    {
-      title: 'Default Pages',
-      key: 'defaultPages',
-      icon: 'icmn icmn-file-text',
-      children: [
-        {
-          key: 'register',
-          title: 'Register',
-          url: '/pages/register',
-          pro: true,
-        },
-        {
-          key: 'lockscreen',
-          title: 'Lockscreen',
-          url: '/pages/lockscreen',
-          pro: true,
-        },
-      ],
-    },
+    // {
+    //   title: 'AntDesign Components',
+    //   key: 'antComponents',
+    //   icon: 'icmn icmn-menu',
+    //   url: '/pages/antd',
+    // },
+    // {
+    //   title: 'Default Pages',
+    //   key: 'defaultPages',
+    //   icon: 'icmn icmn-file-text',
+    //   children: [
+    //     {
+    //       key: 'register',
+    //       title: 'Register',
+    //       url: '/pages/register',
+    //       pro: true,
+    //     },
+    //     {
+    //       key: 'lockscreen',
+    //       title: 'Lockscreen',
+    //       url: '/pages/lockscreen',
+    //       pro: true,
+    //     },
+    //   ],
+    // },
   ]
 }
 export async function getTopMenuData() {
@@ -86,45 +81,37 @@ export async function getTopMenuData() {
       icon: 'icmn icmn-cog utils__spin-delayed--pseudo-selector',
     },
     {
-      title: 'Dashboard',
+      title: 'Main List',
       key: 'home',
       url: '/home/',
       icon: 'icmn icmn-home',
     },
     {
-      title: 'Titles',
-      key: 'list-titles',
-      url: '/titles',
+      title: 'Book',
+      key: 'book',
       icon: 'icmn icmn-menu',
-    },
-    {
-      title: 'Top List',
-      key: 'top-list',
-      url: '/top-titles',
-      icon: 'icmn icmn-menu',
-    },
-    {
-      title: 'AntDesign Components',
-      key: 'antComponents',
-      icon: 'icmn icmn-menu',
-      url: '/pages/antd',
-    },
-    {
-      title: 'Default Pages',
-      key: 'defaultPages',
-      icon: 'icmn icmn-file-text',
       children: [
         {
-          key: 'register',
-          title: 'Register',
-          url: '/pages/register',
-          pro: true,
+          title: 'Listing',
+          key: 'book-list',
+          url: '/book-list',
         },
         {
-          key: 'lockscreen',
-          title: 'Lockscreen',
-          url: '/pages/lockscreen',
-          pro: true,
+          key: 'book-edit',
+          title: 'Register',
+          url: '/book-edit',
+        },
+      ],
+    },
+    {
+      title: 'Author',
+      key: 'author',
+      icon: 'icmn icmn-menu',
+      children: [
+        {
+          key: 'author-edit',
+          title: 'Register',
+          url: '/author-edit',
         },
       ],
     },

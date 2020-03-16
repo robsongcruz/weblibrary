@@ -1,6 +1,7 @@
 import express from 'express'
 import author from './author/author-router'
 import book from './book/book-router'
+import exemplary from './exemplary/exemplary-router'
 
 const cors = require('cors')
 const body_parser = require('body-parser')
@@ -27,5 +28,6 @@ app.use((err, req, res, next) => {
 
 author(app)
 book(app)
+exemplary(app)
 
 export default app

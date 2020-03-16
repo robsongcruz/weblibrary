@@ -404,11 +404,11 @@ class BookList extends React.Component {
 
     return (
       <div>
-        <Helmet title="Authors List" />
+        <Helmet title="Book List" />
         <div className="card">
           <div className="card-header">
             <div className="utils__title">
-              <strong>Authors List</strong>
+              <strong>Books</strong>
             </div>
           </div>
           <div className="card-body">

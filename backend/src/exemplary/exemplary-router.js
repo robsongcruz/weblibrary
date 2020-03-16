@@ -1,4 +1,4 @@
-const AuthorModel =  require('./exemplary-model');
+const ExemplaryModel =  require('./exemplary-model');
 
 module.exports = function(app){
 
@@ -16,9 +16,8 @@ module.exports = function(app){
                 return res.json(form_result)
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
             })
-    })
+    })  
 
     app.get('/api/exemplary/author/:id', async (req, res, next) => {
         const id = parseInt(req.params.id)
