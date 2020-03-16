@@ -85,16 +85,23 @@ module.exports = function(app){
 
     })
 
-    app.post('/api/author/:id', async (req, res, next) => {
+    app.post('/api/author/rem', async (req, res, next) => {
 
-        const id = parseInt(req.params.id)
-        const result = new AuthorModel().delete_author(id)
+        const input_data = req.body
+
+        if (!input_data) {
+            return res.status(400).end();
+        } else {
+                
+            const result = new AuthorModel().delete_author(input_data.id)
             .then(function(result) {
-                return res.json('deleted row')
+                return res.json('deleted author row')
             }).catch(function(err) {
                 console.log(err)
-                return next(e)
+                return next(err)
             })
+            
+        }
 
     })
 

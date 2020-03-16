@@ -16,10 +16,11 @@
 /* eslint-disable prefer-const */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable camelcase */
+
 import React from 'react'
 import { Table, Icon, Input, Button, message, Tag, Badge } from 'antd'
 import { Helmet } from 'react-helmet'
-import config_server from "config.json"
+import configServer from "config.json"
 // import moment from 'moment'
 // import Moment from 'react-moment'
 
@@ -66,10 +67,10 @@ class TitleList extends React.Component {
     // let search_by_year = this.state.searchText
     let search_by_year = ''
     if (search_by_year !== '') {
-      url = "http://" + config_server.ip + ":" + config_server.port + "/api/titles/top/" + search_by_year + "/?page=" + page
+      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/" + search_by_year + "/?page=" + page
     } else {
       // url = "http://" + config_server.ip + ":" + config_server.port + "/api/authors/all/?page=" + page
-      url = "http://" + config_server.ip + ":" + config_server.port + "/api/author?currentPage=" + page + "&pageSize=" + self.page_limit
+      url = "http://" + configServer.ip + ":" + configServer.port + "/api/author?currentPage=" + page + "&pageSize=" + self.page_limit
     }
     
     self.setState({ loading: true });
@@ -116,10 +117,10 @@ class TitleList extends React.Component {
     this.setState({ loading: true })
 
     if (search_by_year !== '') {
-      url = "http://" + config_server.ip + ":" + config_server.port + "/api/titles/top/" + search_by_year + "/?page=" + page
+      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/" + search_by_year + "/?page=" + page
       console.log("teste ano - " + url)
     } else {
-      url = "http://" + config_server.ip + ":" + config_server.port + "/api/titles/top/?page=" + page
+      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/?page=" + page
       console.log("teste sem ano - " + url)
     }
 
@@ -168,7 +169,7 @@ class TitleList extends React.Component {
   getCategories = () => {
 
     let self = this
-    const url = "http://" + config_server.ip + ":" + config_server.port + "/api/titles/genres/"
+    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/genres/"
     let i
     let genres = []
 
@@ -273,6 +274,51 @@ class TitleList extends React.Component {
     return  <Table dataSource={data} columns={columns} pagination={false} showHeader={false} />
   }
 
+  edit_author = (record) => {
+    this.props.history.push({
+      pathname: '/author-edit',
+      data: record
+    })
+  }
+
+  delete_author = (record) => {
+    
+    const self = this
+    const { form } = self.props
+
+    const data = {"id": record.id}
+
+    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/author/rem"
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(function (response) {
+      if (response.status >= 400) {
+        
+        message.error('Bad response from server')
+        throw new Error("Bad response from server")
+      }
+      return response.json();
+    }).then(function (dataLoaded) {
+      
+      console.log(dataLoaded)
+      message.success("Completed Action", self.handleDeleteRow(record.id))
+
+    }).catch(function (err) {
+      console.log("ERROR >>>>>")
+      self.setState({ loading: false })
+      console.log(err)
+    })
+    
+  }
+
+  handleDeleteRow = id => {
+    const {data} = this.state;
+    this.setState({ data: data.filter(item => item.id !== id) })
+  };
+
   render() {
     const { data, searchText, filtered, filterDropdownVisible, pagination, genre_list, loading, is_genre_filtered, genre_filter_list} = this.state
 
@@ -294,7 +340,7 @@ class TitleList extends React.Component {
         title: 'First Name',
         dataIndex: 'first_name',
         // key: 'start_year',
-        width: '25%',
+        width: '20%',
         align: 'left',
         ellipsis: true,
         sorter: (a, b) => a.start_year - b.start_year,
@@ -304,7 +350,7 @@ class TitleList extends React.Component {
         title: 'Last Name',
         dataIndex: 'last_name',
         // key: 'start_year',
-        width: '35%',
+        width: '30%',
         align: 'left',
         ellipsis: true,
         sorter: (a, b) => a.start_year - b.start_year,
@@ -314,9 +360,24 @@ class TitleList extends React.Component {
         title: 'Birth Place',
         dataIndex: 'birth_place',
         // key: 'genre',
-        width: '30%',
+        width: '25%',
         ellipsis: true,  
       },
+      {
+        title: 'Action',
+        width: '15%',
+        render: (record) => (
+          <span>
+            <Button icon="edit" className="mr-1" size="small" onClick={() => this.edit_author(record)}>
+              Edit
+            </Button>
+            <Button icon="cross" className="mr-1" size="small" onClick={() => this.delete_author(record)}>
+              Delete
+            </Button>
+          </span>
+        ),
+      },
+
     
   ]
 
