@@ -25,18 +25,18 @@ class BookModel {
 
     insert_book(book) {
 
-        let sqlcode = 'INSERT INTO book (title, subtitle, category) VALUES ($1, $2, $3) RETURNING id';
+        let sqlcode = 'INSERT INTO book (title, subtitle, category, cover_file) VALUES ($1, $2, $3, $4) RETURNING id';
 
-        let values = [book.title, book.subtitle, book.category]
+        let values = [book.title, book.subtitle, book.category, book.cover_file]
         
         return new DataBaseInterface().query_param(sqlcode, values)
     }
 
     update_book(book) {
 
-        let sqlcode = 'UPDATE book SET title=$1, subtitle=$2, category=$3 WHERE id=$4'
+        let sqlcode = 'UPDATE book SET title=$1, subtitle=$2, category=$3, cover_file=$4 WHERE id=$5'
 
-        let values = [book.title, book.subtitle, book.category, book.id]
+        let values = [book.title, book.subtitle, book.category, book.cover_file, book.id]
         
         return new DataBaseInterface().query_param(sqlcode, values)
     }

@@ -14,24 +14,20 @@ class AuthorModel {
         
     }
 
-    get_all_ex(current_page, page_size) {
-
-        let sqlcode = 'SELECT author.id, author.first_name, author.last_name, book.title, count(*) OVER() AS full_count FROM exemplary ' 
-                        + ' INNER JOIN author ON exemplary.author=author.id ' 
-                        + ' INNER JOIN book ON exemplary.book=book.id '
-                        + ' LIMIT $1 OFFSET $2'
-
-        let values = [page_size, (current_page - 1) * page_size]
-
-        return new DataBaseInterface().query_param(sqlcode, values)
-        
-    }
-
     get_author(id) {
 
         let sqlcode = 'SELECT id, first_name, last_name FROM author WHERE id=$1'
         
         let values = [id]
+        
+        return new DataBaseInterface().query_param(sqlcode, values)
+    }
+
+    get_author_by_name(name) {
+        //OR LOWER(last_name) LIKE LOWER($1%)
+        let sqlcode = `SELECT id, CONCAT(first_name, ' ', last_name) AS full_name FROM author WHERE LOWER(first_name) LIKE LOWER($1) OR LOWER(last_name) LIKE LOWER($2)`
+        
+        let values = [name + '%', '%' + name + '%']
         
         return new DataBaseInterface().query_param(sqlcode, values)
     }

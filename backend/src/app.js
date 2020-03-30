@@ -3,14 +3,17 @@ import author from './author/author-router'
 import book from './book/book-router'
 import exemplary from './exemplary/exemplary-router'
 
+const fileUpload = require('express-fileupload')
+
 const cors = require('cors')
 const body_parser = require('body-parser')
 
 const app = express()
 
+app.use(cors())
 app.use(body_parser.urlencoded({ extended: false }))
 app.use(body_parser.json())
-app.use(cors())
+
 
 // catch 400
 app.use((err, req, res, next) => {
@@ -26,8 +29,15 @@ app.use((err, req, res, next) => {
     next()
 })
 
+app.use('/static', express.static('resources'))
+
+app.use(fileUpload({
+    createParentPath: true
+}))
+
 author(app)
 book(app)
 exemplary(app)
+
 
 export default app

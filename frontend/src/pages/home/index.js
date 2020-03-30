@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable object-shorthand */
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
@@ -18,259 +19,56 @@
 /* eslint-disable camelcase */
 
 import React from 'react'
-import { Table, Icon, Input, Button, message, Tag, Badge } from 'antd'
+import { Table, Icon, Input, Button, message, Tag, Badge, Card, Pagination, Tooltip } from 'antd'
+import { EditOutlined, DeleteOutlined, SettingOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import { Helmet } from 'react-helmet'
 import configServer from "config.json"
+
+import ProductCard from 'components/CleanUIComponents/ProductCard'
+import { array } from 'prop-types';
+
+const { Meta } = Card;
 // import moment from 'moment'
 // import Moment from 'react-moment'
 
 // import table from './data.json'
 
 // import styles from './style.module.scss'
-
+                                                                                                                                                                                                                                                   
 class TitleList extends React.Component {
 
   page_limit = 10
   
   state = {
-    pagination: {}, 
-    tableData: [],
-    avg: [],
-    votes: [],
-    data: [],
+    books: [],
+    bookcards: [],
 
-    filterDropdownVisible: false,
-    searchText: '',
-    filtered: false,
-    
-    loading: false,
-    previous_page: null,
-    next_page: null,
-
-    genre_list: [],
-    genre_filter_list: [],
-    is_genre_filtered: false,
-
-    expanded_data: [],
+    page_limit: 10,
+    current_page: 0,
+    total_page: 0
   }
   
   componentDidMount() {
-    // this.getCategories()
-    this.getAuthorList(1)
+    this.getBookList(1)
   }
 
-  getAuthorList = (page) => {
-
-    let self = this;
-    let url = ""
-    
-    url = "http://" + configServer.ip + ":" + configServer.port + "/api/exemplary?currentPage=" + page + "&pageSize=" + self.page_limit
-    
-    self.setState({ loading: true });
-
-    fetch(url, {
-      method: 'GET',
-    }).then(function (response) {
-      if (response.status >= 400) {
-        self.setState({loading: false})
-        console.log(response)
-        message.error('Bad response from server')
-        throw new Error("Bad response from server")
-      }
-      return response.json();
-    }).then(function (data_loaded) {
-
-      // let pagination = {current: page, next: data_loaded.links.next, previous: data_loaded.links.previous, total: data_loaded.count}
-
-      let pagination = self.state.pagination
-      
-      pagination = {current: page, total: data_loaded.count}
-
-      console.log("Sucess GET >>>>>")
-      console.log(data_loaded.results)
-      
-      self.setState({ data: data_loaded.results, tableData: data_loaded.results, loading: false, pagination })
-
-    }).catch(function (err) {
-      self.setState({ loading: false });
-      console.log(err);
-    });
-
-  }
-
-
-  getAuthorListFiltered = (page, filters) => {
-
-    let self = this
-    let genres = {}
-    let fg = []
-    let url = ""
-    let search_by_year = this.state.searchText
-
-    this.setState({ loading: true })
-
-    if (search_by_year !== '') {
-      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/" + search_by_year + "/?page=" + page
-      console.log("teste ano - " + url)
-    } else {
-      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/?page=" + page
-      console.log("teste sem ano - " + url)
-    }
-
-    genres = {"genres": { "data": filters  }}
-    console.log(genres)
-
-    fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(genres)
-      }).then(function (response) {
-        if (response.status >= 400) {
-          self.setState({ loading: false })
-          message.error('Bad response from server')
-          throw new Error("Bad response from server")
-        }
-        return response.json();
-      }).then(function (data_loaded) {
-      
-        // let pagination = {current: page, next: data_loaded.links.next, previous: data_loaded.links.previous, total: data_loaded.count}
-
-        let pagination = self.state.pagination
-        
-        pagination = {current: page, total: data_loaded.count}
-
-        // for (let i in data) {
-        //   if (data[i].genres === null) {
-        //     data[i].genres = ["Undefined"]
-        //   }
-        // }
-
-        console.log("Sucess POST >>>>>")
-        console.log(data_loaded.results)
-        
-        self.setState({ data: data_loaded.results, tableData: data_loaded.results, loading: false, pagination, is_genre_filtered: true })
-
-      }).catch(function (err) {
-        console.log("ERROR >>>>>")
-        self.setState({ loading: false })
-        console.log(err)
-      });
-
-  }
-
-
-  getCategories = () => {
-
-    let self = this
-    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/genres/"
-    let i
-    let genres = []
-
-    fetch(url, {
-      method: 'GET',
-    }).then(function (response) {
-      if (response.status >= 400) {
-        console.log(url)
-        message.error('Bad response from server')
-        throw new Error("Bad response from server")
-      }
-      return response.json();
-    }).then(function (data_loaded) {
-
-      for (i in data_loaded) {
-        console.log(data_loaded[i])
-        genres.push({ "text": data_loaded[i].genre, "value": data_loaded[i].genre })
-      }
-
-      self.setState({ genre_list: genres })
-
-    }).catch(function (err) {
-      
-      console.log(err);
-    });
-
-
-  }
-
-  // onHandleTable = (pagination, filters, sorter)
-  onHandleTable = (pagination, filters) => {
-    let filter_last = this.state.genre_filter_list.sort()
-    let filter_current = []
-    
-    if ((filters.genres !== null) && (filters.genres !== undefined)) {
-      filter_current = filters.genres.sort()
-    }
-
-    if ((filter_current.length === 0) && (filter_last.length > 0)) {
-      console.log("Zerou filtro")
-      this.setState({ genre_filter_list: [], is_genre_filtered: false })
-      this.getAuthorList(1)
-    } else if (JSON.stringify(filter_last) !== JSON.stringify(filter_current)) {
-      console.log("Mudou o filtro")
-      this.setState({ genre_filter_list: filter_current })
-      this.getAuthorListFiltered(1, filter_current)
-    } else if ((filter_current.length === 0) && (filter_last.length === 0)) {
-      console.log("Mudou de Página sem filtro")
-      this.getAuthorList(pagination.current)
-    } else if (JSON.stringify(filter_last) === JSON.stringify(filter_current)) {
-      console.log("Mudou de Página com filtro")
-      this.getAuthorListFiltered(pagination.current, filter_current)
-    }
-    
-  }
-
-  onInputChange = e => {
-    if ((/^\d+$/.test(e.target.value)) || (e.target.value === ""))
-      this.setState({ searchText: e.target.value })
-  }
-
-  onSearch = () => {
-    const is_genre_filtered = this.state.is_genre_filtered
-
-    if (is_genre_filtered) {
-      let filters = this.state.genre_filter_list
-      console.log("Filtered")
-      this.getAuthorListFiltered(1, filters)
-    } else {
-      console.log("No Filter")
-      this.getAuthorList(1)
-    }
-
-  }
-
-  linkSearchInput = node => {
-    this.searchInput = node
-  }
-
-  get_expanded_content = (record) => {
-
-    const columns = [
-      {
-        dataIndex: 'title',
-      },
-    ]
-    
-    let url = ""
-    let {data} = this.state 
-
-    return  <Table dataSource={data.filter(item => item.id === record.id)} columns={columns} pagination={false} showHeader={false} />
-  }
-
-  edit_author = (record) => {
+  onClickEdit = (book) => {
     this.props.history.push({
-      pathname: '/author-edit',
-      data: record
+      pathname: '/book-edit',
+      data: book
     })
   }
 
-  delete_author = (record) => {
-    
+  onClickDelete = (book) => {
     const self = this
     const { form } = self.props
 
-    const data = {"id": record.id}
+    const data = {"id": book.id}
 
-    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/author/rem"
+    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/book/rem"
+
+    console.log(data)
+    console.log(url)
 
     fetch(url, {
       method: 'POST',
@@ -285,107 +83,152 @@ class TitleList extends React.Component {
       return response.json();
     }).then(function (dataLoaded) {
       
-      console.log(dataLoaded)
-      message.success("Completed Action", self.handleDeleteRow(record.id))
+      // console.log(dataLoaded)
+      message.success("Completed Action", self.handleDeleteBook(book.id))
 
     }).catch(function (err) {
       console.log("ERROR >>>>>")
-      self.setState({ loading: false })
       console.log(err)
     })
-    
   }
 
-  handleDeleteRow = id => {
-    const {data} = this.state;
-    this.setState({ data: data.filter(item => item.id !== id) })
-  };
+  handleDeleteBook = id => {
+    let { bookcards } = this.state
+
+    bookcards = bookcards.filter(bookcard => bookcard.key !== "" + id)
+
+    this.setState({ bookcards })
+      
+  }
+
+  onClickAddAuthor = (book) => {
+    this.props.history.push({
+      pathname: '/book-link',
+      data: book
+    })
+  }
+
+  addBookcard = (book) => {
+    let { bookcards } = this.state
+    let author = {}
+    let str_authors = ""
+
+    for (let i = 0; i < book.authors.length; i += 1) {
+      author = JSON.parse(book.authors[i])
+      if (author.first_name !== "") {
+        str_authors += author.last_name + ', ' + author.first_name + (i < book.authors.length - 1 ? ' ; ' : '')
+      }
+    }
+    console.log("http://" + configServer.ip + ":" + configServer.port + "/static/img/" + book.cover_file)
+    let new_card =
+      <div key={book.id} className='col-2 d-inline-block text-truncate'>
+        <Card
+          hoverable
+          // style={{ width: 200, height: 300 }}
+          cover={
+            <img
+              alt={book.title}
+              src={"http://" + configServer.ip + ":" + configServer.port + "/static/img/" + book.cover_file}
+            />
+          }
+          actions={[
+            <Tooltip placement="bottom" title="Edit Book Info"><EditOutlined key="edit" onClick={() => this.onClickEdit(book)} /></Tooltip>,
+            <Tooltip placement="bottom" title="Add Author"><UsergroupAddOutlined key="add" onClick={() => this.onClickAddAuthor(book)} /></Tooltip>,
+            <Tooltip placement="bottom" title="Delete Book"><DeleteOutlined key="delete" style={{color: 'red'}} onClick={() => this.onClickDelete(book)} /></Tooltip>,
+          ]}
+        >
+          <Meta title={book.title} description={str_authors === "" ? " - " : str_authors} />
+        </Card>
+      </div>
+    // description={this.addAuthorsTag(book.author)}
+    bookcards.push(new_card)
+    this.setState({ bookcards })
+  }
+
+  getBookList = (page) => {
+
+    let self = this;
+    let url = ""
+
+    url = "http://" + configServer.ip + ":" + configServer.port + "/api/exemplary/full?currentPage=" + page + "&pageSize=" + self.page_limit
+    
+    console.log(url)
+
+    fetch(url, {
+      method: 'GET',
+    }).then(function (response) {
+      if (response.status >= 400) {
+        console.log(response)
+        message.error('Bad response from server')
+        throw new Error("Bad response from server")
+      }
+      return response.json();
+    }).then(function (data_loaded) {
+
+      // let pagination = {current: page, next: data_loaded.links.next, previous: data_loaded.links.previous, total: data_loaded.count}
+      const books = data_loaded.results
+
+      console.log("Success GET >>>>>")
+      
+      self.setState({ books, current_page: page, total:  data_loaded.count})
+
+      self.setState({ bookcards: [] }, () => { books.map((book) => self.addBookcard(book)) })
+
+    }).catch(function (err) {
+      console.log(err);
+    });
+
+  }
+
+  addAuthorsTag = (authors) => {
+    let tags  = []
+
+    for (let  i = 0; i < authors.length; i += 1) {
+      
+      const new_tag = <Tag key={"author" + authors[i].id}>
+                        {authors[i].first_name + ' ' + authors[i].last_name}
+                      </Tag>
+      
+      tags.push(new_tag)
+    }
+    
+    return tags
+  }
+
+  onChangePage = (page, page_size) => {
+
+    this.getBookList(page)
+
+  }
 
   render() {
-    const { data, searchText, filtered, filterDropdownVisible, pagination, genre_list, loading, is_genre_filtered, genre_filter_list} = this.state
-
-    const columns = [
-
-      {
-        title: 'Id',
-        dataIndex: 'id',
-        key: 'id',
-        width: '10%',
-        render: text => (
-          <a className="utils__link--underlined" href="">
-            {`#${text}`}
-          </a>
-        ),
-        sorter: (a, b) => a.title_id - b.title_id,
-      },
-      {
-        title: 'First Name',
-        dataIndex: 'first_name',
-        // key: 'start_year',
-        width: '20%',
-        align: 'left',
-        ellipsis: true,
-        sorter: (a, b) => a.start_year - b.start_year,
-        render: record => { return (record !== null) ? record : "-" }
-      },
-      {
-        title: 'Last Name',
-        dataIndex: 'last_name',
-        // key: 'start_year',
-        width: '30%',
-        align: 'left',
-        ellipsis: true,
-        sorter: (a, b) => a.start_year - b.start_year,
-        render: record => { return (record !== null) ? record : "-" }
-      },
-      {
-        title: 'Birth Place',
-        dataIndex: 'birth_place',
-        // key: 'genre',
-        width: '25%',
-        ellipsis: true,  
-      },
-      {
-        title: 'Action',
-        width: '15%',
-        render: (record) => (
-          <span>
-            <Button icon="edit" className="mr-1" size="small" onClick={() => this.edit_author(record)}>
-              Edit
-            </Button>
-            <Button icon="cross" className="mr-1" size="small" onClick={() => this.delete_author(record)}>
-              Delete
-            </Button>
-          </span>
-        ),
-      },
-
-    
-  ]
+    const { bookcards, current_page, total_page, page_limit } = this.state
 
     return (
       <div>
-        <Helmet title="Author List" />
+        <Helmet title="Book Catalog" />
         <div className="card">
           <div className="card-header">
             <div className="utils__title">
-              <strong>Authors</strong>
+              <strong>Books</strong>
             </div>
           </div>
           <div className="card-body">
-            <Table
-              rowKey="id"
-              className="utils__scrollTable"
-              scroll={{ x: '100%' }}
-              columns={columns}
-              dataSource={data}
-              onChange={this.onHandleTable}
-              pagination={{ current: pagination.current, total: pagination.total }}
-              loading={loading}
-              expandedRowRender={(record) => this.get_expanded_content(record)}
-              rowExpandable
-            />
+            <div className="col-lg-12">
+              {bookcards}
+            </div>
           </div>
+
+          <div className="col-lg-12">
+            <div className="row">  
+              <div className="col-lg-12">
+                <div className="form-actions">
+                 <Pagination current={current_page} pageSize={page_limit} total={total_page} hideOnSinglePage onChange={this.onChangePage}  />
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     )

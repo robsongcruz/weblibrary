@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable object-shorthand */
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
@@ -18,7 +19,7 @@
 /* eslint-disable camelcase */
 
 import React from 'react'
-import { Table, Icon, Input, Button, message, Tag, Badge, Card, Typography } from 'antd'
+import { Table, Icon, Input, Button, message, Tag, Badge, Card, Typography, Descriptions } from 'antd'
 import { Helmet } from 'react-helmet'
 import configServer from "config.json"
 
@@ -53,8 +54,7 @@ class BookList extends React.Component {
     genre_filter_list: [],
     is_genre_filtered: false,
 
-    expanded_data: [],
-    rows: 1,
+    expanded_data: []
   }
   
   componentDidMount() {
@@ -67,11 +67,11 @@ class BookList extends React.Component {
     let self = this;
     let url = ""
 
-    url = "http://" + configServer.ip + ":" + configServer.port + "/api/book?currentPage=" + page + "&pageSize=" + self.page_limit
+    url = "http://" + configServer.ip + ":" + configServer.port + "/api/exemplary/full?currentPage=" + page + "&pageSize=" + self.page_limit
     
     console.log(url)
 
-    self.setState({ loading: true });
+    self.setState({ loading: true })
 
     fetch(url, {
       method: 'GET',
@@ -92,7 +92,7 @@ class BookList extends React.Component {
       pagination = {current: page, total: data_loaded.count}
 
       console.log("Success GET >>>>>")
-      console.log(data_loaded)
+      // console.log(data_loaded)
       
       self.setState({ data: data_loaded.results, tableData: data_loaded.results, loading: false, pagination })
 
@@ -143,12 +143,6 @@ class BookList extends React.Component {
         let pagination = self.state.pagination
         
         pagination = {current: page, total: data_loaded.count}
-
-        // for (let i in data) {
-        //   if (data[i].genres === null) {
-        //     data[i].genres = ["Undefined"]
-        //   }
-        // }
 
         console.log("Sucess POST >>>>>")
         console.log(data_loaded.results)
@@ -248,48 +242,46 @@ class BookList extends React.Component {
   }
 
   get_expanded_content = (row) => {
-    const {rows} = this.state
-    
-      const columns = [
-        {
-          dataIndex: 'subtitle',
-          render: text => (
-            <div style={{width: '95%'}}>
-              <Paragraph ellipsis={{ rows: rows, expandable: true, onExpand:() => this.onExpand() }}>
-                {text}
-              </Paragraph>
-              
-            </div>
-          ),
-         
-        },
-      ]
 
-      const data = []
-      data.push({
-        subtitle: row.subtitle,
-      })
-      // <Table dataSource={data} columns={columns} pagination={false} showHeader={false} />
+      let author = {}
+      let str_authors = ""
+
+      console.log(row)
+      for (let i = 0; i < row.authors.length; i += 1) {
+        author = JSON.parse(row.authors[i])
+        if (author.first_name !== "") {
+          str_authors += author.last_name + ', ' + author.first_name + (i < row.authors.length - 1 ? ' ; ' : '')
+        }
+      }
+
       return  (
-        <div style={{width: '95%'}}>
-          <Paragraph ellipsis={{ rows: rows, expandable: true, onExpand:() => this.onExpand() }}>
-            {row.subtitle}
-          </Paragraph>
-        </div>
-        
-        
+              <div style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
+                <Card>
+                  <Descriptions bordered column={1} size='middle'>
+                    <Descriptions.Item key="subtitle" label={<strong>Subtitle or Plot</strong>}>{row.subtitle}</Descriptions.Item>
+                    <Descriptions.Item key="authors" label={<strong>Author(s)</strong>}>{str_authors}</Descriptions.Item>
+                  </Descriptions>
+                </Card>
+              </div>
       )
 
   }
 
-  edit_book = (record) => {
+  editBook = (record) => {
     this.props.history.push({
       pathname: '/book-edit',
       data: record
     })
   }
 
-  delete_book = (record) => {
+  addAuthor = (record) => {
+    this.props.history.push({
+      pathname: '/book-link',
+      data: record
+    })
+  }
+
+  deleteBook = (record) => {
     
     const self = this
     const { form } = self.props
@@ -297,6 +289,9 @@ class BookList extends React.Component {
     const data = {"id": record.id}
 
     const url = "http://" + configServer.ip + ":" + configServer.port + "/api/book/rem"
+
+    console.log(data)
+    console.log(url)
 
     fetch(url, {
       method: 'POST',
@@ -311,7 +306,7 @@ class BookList extends React.Component {
       return response.json();
     }).then(function (dataLoaded) {
       
-      console.log(dataLoaded)
+      // console.log(dataLoaded)
       message.success("Completed Action", self.handleDeleteRow(record.id))
 
     }).catch(function (err) {
@@ -341,6 +336,7 @@ class BookList extends React.Component {
         dataIndex: 'id',
         key: 'id',
         width: '10%',
+        height: "auto",
         render: text => (
           <a className="utils__link--underlined" href="">
             {`#${text}`}
@@ -352,7 +348,8 @@ class BookList extends React.Component {
         title: 'Title',
         dataIndex: 'title',
         // key: 'start_year',
-        width: '45%',
+        height: "auto",
+        width: '35%',
         align: 'left',
         ellipsis: true,
         sorter: (a, b) => a.start_year - b.start_year,
@@ -362,7 +359,8 @@ class BookList extends React.Component {
         title: 'Category',
         dataIndex: 'category',
         // key: 'start_year',
-        width: '25%',
+        height: "auto",
+        width: '30%',
         align: 'left',
         ellipsis: true,
         sorter: (a, b) => a.start_year - b.start_year,
@@ -381,25 +379,27 @@ class BookList extends React.Component {
             )
           })
         }
-      }  
+        }  
 
       },
       {
         title: 'Action',
-        width: '20%',
+        height: "auto",
+        width: '25%',
         render: (record) => (
-          <span>
-            <Button icon="edit" className="mr-1" size="small" onClick={() => this.edit_book(record)}>
+          <div>
+            <Button icon="edit" className="mr-1" size="small" onClick={() => this.editBook(record)}>
               Edit
             </Button>
-            <Button icon="cross" className="mr-1" size="small" onClick={() => this.delete_book(record)}>
+            <Button icon="cross" className="mr-1" size="small" onClick={() => this.deleteBook(record)}>
               Delete
             </Button>
-          </span>
+            <Button icon="plus" className="mr-1" size="small" onClick={() => this.addAuthor(record)}>
+              Add Author
+            </Button>
+          </div>
         ),
-      },
-
-    
+      }
   ]
 
     return (
@@ -425,6 +425,7 @@ class BookList extends React.Component {
                   loading={loading}
                   expandedRowRender={(record) => this.get_expanded_content(record)}
                   rowExpandable
+                  indentSize={10}
                 />
               </div>
             </div>
