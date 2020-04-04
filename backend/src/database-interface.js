@@ -59,7 +59,8 @@ class DataBaseInterface {
                         id SERIAL PRIMARY KEY,  
                         title  varchar(100), 
                         subtitle   varchar(600),
-                        category   varchar(20)[3]
+                        category   varchar(20)[3],
+                        cover_file varchar(30)
                     ); 
 
                     CREATE TABLE IF NOT EXISTS exemplary ( 

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable object-shorthand */
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
@@ -18,7 +19,7 @@
 /* eslint-disable camelcase */
 
 import React from 'react'
-import { Table, Icon, Input, Button, message, Tag, Badge, Card, Typography } from 'antd'
+import { Table, Icon, Input, Button, message, Tag, Badge, Card, Typography, Descriptions } from 'antd'
 import { Helmet } from 'react-helmet'
 import configServer from "config.json"
 
@@ -37,8 +38,6 @@ class BookList extends React.Component {
   state = {
     pagination: {}, 
     tableData: [],
-    avg: [],
-    votes: [],
     data: [],
 
     filterDropdownVisible: false,
@@ -46,15 +45,8 @@ class BookList extends React.Component {
     filtered: false,
     
     loading: false,
-    previous_page: null,
-    next_page: null,
 
-    genre_list: [],
-    genre_filter_list: [],
-    is_genre_filtered: false,
-
-    expanded_data: [],
-    rows: 1,
+    expanded_data: []
   }
   
   componentDidMount() {
@@ -67,11 +59,11 @@ class BookList extends React.Component {
     let self = this;
     let url = ""
 
-    url = "http://" + configServer.ip + ":" + configServer.port + "/api/book?currentPage=" + page + "&pageSize=" + self.page_limit
+    url = "http://" + configServer.ip + ":" + configServer.port + "/api/exemplary/full?currentPage=" + page + "&pageSize=" + self.page_limit
     
     console.log(url)
 
-    self.setState({ loading: true });
+    self.setState({ loading: true })
 
     fetch(url, {
       method: 'GET',
@@ -92,7 +84,7 @@ class BookList extends React.Component {
       pagination = {current: page, total: data_loaded.count}
 
       console.log("Success GET >>>>>")
-      console.log(data_loaded)
+      // console.log(data_loaded)
       
       self.setState({ data: data_loaded.results, tableData: data_loaded.results, loading: false, pagination })
 
@@ -104,31 +96,38 @@ class BookList extends React.Component {
   }
 
 
-  getAuthorListFiltered = (page, filters) => {
+// onHandleTable = (pagination, filters, sorter)
+onHandleTable = (pagination, filters) => {  
+  const pag = this.state.pagination
+
+  if (pagination.current !== pag.current) {
+    this.getAuthorList(pagination.current)
+  }
+  
+}
+
+  onInputChange = e => {
+    this.setState({ searchText: e.target.value })
+  }
+
+  onSearch = () => {
 
     let self = this
-    let genres = {}
-    let fg = []
     let url = ""
-    let search_by_year = this.state.searchText
+    let strTitle = this.state.searchText
 
     this.setState({ loading: true })
 
-    if (search_by_year !== '') {
-      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/" + search_by_year + "/?page=" + page
-      console.log("teste ano - " + url)
-    } else {
-      url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/top/?page=" + page
-      console.log("teste sem ano - " + url)
-    }
+    url = "http://" + configServer.ip + ":" + configServer.port + "/api/exemplary/title?currentPage=1&pageSize=" + self.page_limit
 
-    genres = {"genres": { "data": filters  }}
-    console.log(genres)
+    let book = {
+      "title": strTitle
+    }
 
     fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(genres)
+        body: JSON.stringify(book)
       }).then(function (response) {
         if (response.status >= 400) {
           self.setState({ loading: false })
@@ -139,107 +138,18 @@ class BookList extends React.Component {
       }).then(function (data_loaded) {
       
         // let pagination = {current: page, next: data_loaded.links.next, previous: data_loaded.links.previous, total: data_loaded.count}
-
-        let pagination = self.state.pagination
+        let pagination = {current: 1, total: data_loaded.count}
         
-        pagination = {current: page, total: data_loaded.count}
+        self.setState({ data: data_loaded.results, tableData: data_loaded.results, loading: false, pagination })
 
-        // for (let i in data) {
-        //   if (data[i].genres === null) {
-        //     data[i].genres = ["Undefined"]
-        //   }
-        // }
-
-        console.log("Sucess POST >>>>>")
-        console.log(data_loaded.results)
-        
-        self.setState({ data: data_loaded.results, tableData: data_loaded.results, loading: false, pagination, is_genre_filtered: true })
 
       }).catch(function (err) {
-        console.log("ERROR >>>>>")
         self.setState({ loading: false })
         console.log(err)
       });
-
-  }
-
-
-  getCategories = () => {
-
-    let self = this
-    const url = "http://" + configServer.ip + ":" + configServer.port + "/api/titles/genres/"
-    let i
-    let genres = []
-
-    fetch(url, {
-      method: 'GET',
-    }).then(function (response) {
-      if (response.status >= 400) {
-        console.log(url)
-        message.error('Bad response from server')
-        throw new Error("Bad response from server")
-      }
-      return response.json();
-    }).then(function (data_loaded) {
-
-      for (i in data_loaded) {
-        console.log(data_loaded[i])
-        genres.push({ "text": data_loaded[i].genre, "value": data_loaded[i].genre })
-      }
-
-      self.setState({ genre_list: genres })
-
-    }).catch(function (err) {
-      
-      console.log(err);
-    });
-
-
-  }
-
-  // onHandleTable = (pagination, filters, sorter)
-  onHandleTable = (pagination, filters) => {
-    let filter_last = this.state.genre_filter_list.sort()
-    let filter_current = []
     
-    if ((filters.genres !== null) && (filters.genres !== undefined)) {
-      filter_current = filters.genres.sort()
-    }
 
-    if ((filter_current.length === 0) && (filter_last.length > 0)) {
-      console.log("Zerou filtro")
-      this.setState({ genre_filter_list: [], is_genre_filtered: false })
-      this.getAuthorList(1)
-    } else if (JSON.stringify(filter_last) !== JSON.stringify(filter_current)) {
-      console.log("Mudou o filtro")
-      this.setState({ genre_filter_list: filter_current })
-      this.getAuthorListFiltered(1, filter_current)
-    } else if ((filter_current.length === 0) && (filter_last.length === 0)) {
-      console.log("Mudou de Página sem filtro")
-      this.getAuthorList(pagination.current)
-    } else if (JSON.stringify(filter_last) === JSON.stringify(filter_current)) {
-      console.log("Mudou de Página com filtro")
-      this.getAuthorListFiltered(pagination.current, filter_current)
-    }
-    
-  }
 
-  onInputChange = e => {
-    if ((/^\d+$/.test(e.target.value)) || (e.target.value === ""))
-      this.setState({ searchText: e.target.value })
-  }
-
-  onSearch = () => {
-    const is_genre_filtered = this.state.is_genre_filtered
-
-    if (is_genre_filtered) {
-      let filters = this.state.genre_filter_list
-      console.log("Filtered")
-      this.getAuthorListFiltered(1, filters)
-    } else {
-      console.log("No Filter")
-      this.getAuthorList(1)
-    }
 
   }
 
@@ -247,49 +157,46 @@ class BookList extends React.Component {
     this.searchInput = node
   }
 
-  get_expanded_content = (row) => {
-    const {rows} = this.state
-    
-      const columns = [
-        {
-          dataIndex: 'subtitle',
-          render: text => (
-            <div style={{width: '95%'}}>
-              <Paragraph ellipsis={{ rows: rows, expandable: true, onExpand:() => this.onExpand() }}>
-                {text}
-              </Paragraph>
-              
-            </div>
-          ),
-         
-        },
-      ]
+  getExpandedContent = (row) => {
 
-      const data = []
-      data.push({
-        subtitle: row.subtitle,
-      })
-      // <Table dataSource={data} columns={columns} pagination={false} showHeader={false} />
+      let author = {}
+      let str_authors = ""
+
+      for (let i = 0; i < row.authors.length; i += 1) {
+        author = JSON.parse(row.authors[i])
+        if (author.first_name !== "") {
+          str_authors += author.last_name + ', ' + author.first_name + (i < row.authors.length - 1 ? ' ; ' : '')
+        }
+      }
+
       return  (
-        <div style={{width: '95%'}}>
-          <Paragraph ellipsis={{ rows: rows, expandable: true, onExpand:() => this.onExpand() }}>
-            {row.subtitle}
-          </Paragraph>
-        </div>
-        
-        
+              <div style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
+                <Card>
+                  <Descriptions bordered column={1} size='middle'>
+                    <Descriptions.Item key="subtitle" label={<strong>Subtitle or Plot</strong>}>{row.subtitle}</Descriptions.Item>
+                    <Descriptions.Item key="authors" label={<strong>Author(s)</strong>}>{str_authors || '<Not registered>'}</Descriptions.Item>
+                  </Descriptions>
+                </Card>
+              </div>
       )
 
   }
 
-  edit_book = (record) => {
+  editBook = (record) => {
     this.props.history.push({
       pathname: '/book-edit',
       data: record
     })
   }
 
-  delete_book = (record) => {
+  addAuthor = (record) => {
+    this.props.history.push({
+      pathname: '/book-link',
+      data: record
+    })
+  }
+
+  deleteBook = (record) => {
     
     const self = this
     const { form } = self.props
@@ -311,11 +218,10 @@ class BookList extends React.Component {
       return response.json();
     }).then(function (dataLoaded) {
       
-      console.log(dataLoaded)
+      // console.log(dataLoaded)
       message.success("Completed Action", self.handleDeleteRow(record.id))
 
     }).catch(function (err) {
-      console.log("ERROR >>>>>")
       self.setState({ loading: false })
       console.log(err)
     })
@@ -341,31 +247,56 @@ class BookList extends React.Component {
         dataIndex: 'id',
         key: 'id',
         width: '10%',
+        height: "auto",
         render: text => (
           <a className="utils__link--underlined" href="">
             {`#${text}`}
           </a>
         ),
-        sorter: (a, b) => a.title_id - b.title_id,
       },
       {
         title: 'Title',
         dataIndex: 'title',
-        // key: 'start_year',
-        width: '45%',
+        height: "auto",
+        width: '35%',
         align: 'left',
         ellipsis: true,
-        sorter: (a, b) => a.start_year - b.start_year,
+        sorter: (a, b) => a.title.charCodeAt(0) - b.title.charCodeAt(0),
+        filterDropdown: (
+          <div className="custom-filter-dropdown">
+            <Input
+              ref={this.linkSearchInput}
+              placeholder="Search by title"
+              value={searchText}
+              onChange={this.onInputChange}
+              onPressEnter={this.onSearch}
+            />
+            <Button type="primary" onClick={this.onSearch}>
+              Search
+            </Button>
+          </div>
+        ),
+        filterIcon: <Icon type="search" style={{ color: filtered ? '#108ee9' : '#aaa' }} />,
+        filterDropdownVisible,
+        onFilterDropdownVisibleChange: visible => {
+          this.setState(
+            {
+              filterDropdownVisible: visible,
+            },
+            () => this.searchInput && this.searchInput.focus(),
+          )
+        },
         render: record => { return (record !== null) ? record : "-" }
       },
       {
         title: 'Category',
         dataIndex: 'category',
         // key: 'start_year',
-        width: '25%',
+        height: "auto",
+        width: '30%',
         align: 'left',
         ellipsis: true,
-        sorter: (a, b) => a.start_year - b.start_year,
+        sorter: (a, b) => a.category.length - b.category.length,
         render: (record) => { if (record === null) {
           return (
             <Tag color="orange">
@@ -381,25 +312,27 @@ class BookList extends React.Component {
             )
           })
         }
-      }  
+        }  
 
       },
       {
         title: 'Action',
-        width: '20%',
+        height: "auto",
+        width: '25%',
         render: (record) => (
-          <span>
-            <Button icon="edit" className="mr-1" size="small" onClick={() => this.edit_book(record)}>
+          <div>
+            <Button icon="edit" className="mr-1" size="small" onClick={() => this.editBook(record)}>
               Edit
             </Button>
-            <Button icon="cross" className="mr-1" size="small" onClick={() => this.delete_book(record)}>
+            <Button icon="cross" className="mr-1" size="small" onClick={() => this.deleteBook(record)}>
               Delete
             </Button>
-          </span>
+            <Button icon="plus" className="mr-1" size="small" onClick={() => this.addAuthor(record)}>
+              Add Author
+            </Button>
+          </div>
         ),
-      },
-
-    
+      }
   ]
 
     return (
@@ -423,8 +356,9 @@ class BookList extends React.Component {
                   onChange={this.onHandleTable}
                   pagination={{ current: pagination.current, total: pagination.total }}
                   loading={loading}
-                  expandedRowRender={(record) => this.get_expanded_content(record)}
+                  expandedRowRender={(record) => this.getExpandedContent(record)}
                   rowExpandable
+                  indentSize={10}
                 />
               </div>
             </div>

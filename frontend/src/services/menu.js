@@ -9,7 +9,7 @@ export async function getLeftMenuData() {
       divider: true,
     },
     {
-      title: 'Main List',
+      title: 'Catalog',
       key: 'home',
       url: '/home/',
       icon: 'icmn icmn-home',
@@ -29,6 +29,11 @@ export async function getLeftMenuData() {
           title: 'Register',
           url: '/book-edit',
         },
+        /* {
+          key: 'book-link',
+          title: 'Link Author',
+          url: '/book-link',
+        }, */
       ],
     },
     {
@@ -36,6 +41,11 @@ export async function getLeftMenuData() {
       key: 'author',
       icon: 'icmn icmn-menu',
       children: [
+        {
+          key: 'author-list',
+          title: 'Listing',
+          url: '/author-list',
+        },
         {
           key: 'author-edit',
           title: 'Register',
@@ -46,31 +56,6 @@ export async function getLeftMenuData() {
     {
       divider: true,
     },
-    // {
-    //   title: 'AntDesign Components',
-    //   key: 'antComponents',
-    //   icon: 'icmn icmn-menu',
-    //   url: '/pages/antd',
-    // },
-    // {
-    //   title: 'Default Pages',
-    //   key: 'defaultPages',
-    //   icon: 'icmn icmn-file-text',
-    //   children: [
-    //     {
-    //       key: 'register',
-    //       title: 'Register',
-    //       url: '/pages/register',
-    //       pro: true,
-    //     },
-    //     {
-    //       key: 'lockscreen',
-    //       title: 'Lockscreen',
-    //       url: '/pages/lockscreen',
-    //       pro: true,
-    //     },
-    //   ],
-    // },
   ]
 }
 export async function getTopMenuData() {
@@ -81,7 +66,7 @@ export async function getTopMenuData() {
       icon: 'icmn icmn-cog utils__spin-delayed--pseudo-selector',
     },
     {
-      title: 'Main List',
+      title: 'Catalog',
       key: 'home',
       url: '/home/',
       icon: 'icmn icmn-home',
@@ -108,6 +93,11 @@ export async function getTopMenuData() {
       key: 'author',
       icon: 'icmn icmn-menu',
       children: [
+        {
+          key: 'author-list',
+          title: 'Listing',
+          url: '/author-list',
+        },
         {
           key: 'author-edit',
           title: 'Register',

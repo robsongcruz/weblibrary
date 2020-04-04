@@ -14,7 +14,7 @@ Além das funcionalidades, serão considerados os extras:
 
 import app from './src/app'
 
-const port = process.env.PORT || '8000'
+const port = process.env.PORT || '8001'
 
 app.listen(port)
 

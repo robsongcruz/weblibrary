@@ -16,7 +16,7 @@ const loadable = loader =>
 
 const routes = [
   // System Pages
-  {
+ /*  {
     path: '/user/login',
     component: loadable(() => import('pages/user/login')),
     exact: true,
@@ -25,7 +25,7 @@ const routes = [
     path: '/user/forgot',
     component: loadable(() => import('pages/user/forgot')),
     exact: true,
-  },
+  }, */
   // Dashboards
   {
     path: '/home',
@@ -40,28 +40,19 @@ const routes = [
     component: loadable(() => import('pages/book/book-form')),
   },
   {
+    path: '/book-link',
+    component: loadable(() => import('pages/book/book-link')),
+  },
+  {
     path: '/author-list',
-    component: loadable(() => import('pages/home')),
+    component: loadable(() => import('pages/author/author-list')),
   },
   {
     path: '/author-edit',
     component: loadable(() => import('pages/author/author-form')),
   },
-  {
-    path: '/pages/antd',
-    component: loadable(() => import('pages/antd')),
-    exact: true,
-  },
-  {
-    path: '/pages/register',
-    component: loadable(() => import('pages/pages/register')),
-    exact: true,
-  },
-  {
-    path: '/pages/lockscreen',
-    component: loadable(() => import('pages/pages/lockscreen')),
-    exact: true,
-  },
+
+
 ]
 
 class Router extends React.Component {
