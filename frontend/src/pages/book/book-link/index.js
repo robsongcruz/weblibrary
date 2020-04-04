@@ -28,7 +28,7 @@ import TextArea from 'antd/lib/input/TextArea'
 
 const { Title } = Typography;
 
-const { Search } = Input;
+const { Search } = Input
 const FormItem = Form.Item
 
 
@@ -44,7 +44,9 @@ class BookEdit extends React.Component {
     data_to_delete: [],
     original: [],
     selected: [],
-    selected_tag: []
+    selected_tag: [],
+    author_list: [],
+    search_value: ''
   }
 
   componentDidMount() {
@@ -78,8 +80,6 @@ class BookEdit extends React.Component {
           })
         }
       })
-
-      console.log(selected)
 
     }
 
@@ -115,7 +115,6 @@ class BookEdit extends React.Component {
         message.success("Saved data", self.onClickCancel)
 
       }).catch(function (err) {
-        console.log("ERROR ON SAVE")
         console.log(err)
       })
 
@@ -141,7 +140,6 @@ class BookEdit extends React.Component {
         message.success("Saved data", self.onClickCancel)
 
       }).catch(function (err) {
-        console.log("ERROR ON DELETE")
         console.log(err)
       })
 
@@ -150,14 +148,42 @@ class BookEdit extends React.Component {
 
   }
 
+  addTableList = () => {
+    const {found} = this.state
+    const found_col = [
+      {
+        key: 'id',
+        dataIndex: 'id',
+      },
+      {
+        dataIndex: 'full_name',
+      },
+      {
+        render: (record) => (
+          <span>
+            <Button icon='plus' shape="circle" onClick={() => this.addSelectedAuthor(record)} />
+          </span>
+        ),
+      },
+    ]
+
+    let new_list = (
+      <div className="col-lg-6">
+        <div className="form-group">
+          <Table rowKey='id' dataSource={found} columns={found_col} pagination={false} showHeader={false} />
+        </div>
+      </div>
+    )
+    console.log(new_list)
+    this.setState({ author_list: new_list })
+  }
+
   onSearchAuthor = (value) => {
 
     let self = this;
     let url = ""
 
     url = "http://" + configServer.ip + ":" + configServer.port + "/api/author/name/" + value
-    
-    console.log(url)
 
     self.setState({ loading: true });
 
@@ -171,16 +197,17 @@ class BookEdit extends React.Component {
       }
       return response.json();
     }).then(function (data_loaded) {
-
-      console.log("Success GET >>>>>")
-      console.log(data_loaded)
       
-      self.setState({ found: data_loaded })
+      self.setState({ found: data_loaded, search_value: '' }, () => {self.addTableList()})
 
     }).catch(function (err) {
       console.log(err);
     });
 
+  }
+
+  handleInputChange = e => {
+    this.setState({ search_value: e.target.value })
   }
 
   addSelectedAuthor = (row)  => {
@@ -207,7 +234,7 @@ class BookEdit extends React.Component {
         this.setState({ data_to_insert, save: true })
       }
 
-      this.setState({ selected_tag, selected })
+      this.setState({ selected_tag, selected, author_list: [] })
     } else {
       message.warning("Already selected")
     }
@@ -236,24 +263,7 @@ class BookEdit extends React.Component {
 
   render() {
     const { form } = this.props
-    const { found, selected_tag, book, save } = this.state
-
-    const found_col = [
-      {
-        key: 'id',
-        dataIndex: 'id',
-      },
-      {
-        dataIndex: 'full_name',
-      },
-      {
-        render: (record) => (
-          <span>
-            <Button icon='plus' shape="circle" onClick={() => this.addSelectedAuthor(record)} />
-          </span>
-        ),
-      },
-    ]
+    const { found, selected_tag, book, save, author_list, search_value } = this.state
 
     return (
       <div>
@@ -281,29 +291,22 @@ class BookEdit extends React.Component {
                         </Descriptions>
                       </div>
                     </div>
-
-                    {/* <div className="col-lg-6">
-                      <div className="form-group">
-                        <br /><Title level={4}>Authors</Title>
-                      </div>
-                    </div> */}
                       
                     <div className="col-lg-6">
                       <div className="row">
                         <div className="col-lg-6">
                           <div className="form-group">
-                            <Search placeholder="Search author to add..." onSearch={this.onSearchAuthor} enterButton />
+                            <Search placeholder="Search author to add..." onSearch={this.onSearchAuthor} onChange={this.handleInputChange} value={search_value} allowClear enterButton />
                           </div>
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-lg-6">
+                        {author_list}
+                        {/* <div className="col-lg-6">
                           <div className="form-group">
-                            <FormItem label={<strong>Found Authors</strong>}>
-                              <Table rowKey='id' dataSource={found} columns={found_col} pagination={false} showHeader={false} />
-                            </FormItem>
+                            <Table rowKey='id' dataSource={found} columns={found_col} pagination={false} showHeader={false} />
                           </div>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
 

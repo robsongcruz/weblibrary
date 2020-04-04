@@ -44,7 +44,6 @@ class BookEdit extends React.Component {
     inputVisible: false,
     inputValue: '',
 
-    uploading: false, 
     upfile: [],
 
     previewVisible: false,
@@ -71,17 +70,19 @@ class BookEdit extends React.Component {
       const uploadButton = [this.addUploadButton()]
       this.setState({ uploadButton })
 
-      // if (fields.cover_file !== undefined) {
+      console.log(fields)
 
-      //   const upfile = [{
-      //     uid: '1',
-      //     name: fields.cover_file,
-      //     status: 'done',
-      //     url: "http://" + configServer.ip + ":" + configServer.port + "/static/img/" + fields.cover_file
-      //   }]
-      //   this.setState({ upfile })
+      if ((fields.cover_file !== undefined) && (fields.cover_file !== '')) {
+
+        const upfile = [{
+           uid: fields.id,
+           name: fields.title,
+           status: 'done',
+           url: "http://" + configServer.ip + ":" + configServer.port + "/static/img/" + fields.cover_file
+        }]
+        this.setState({ upfile })
         
-      // }
+      }
       // this.loadImage("http://" + configServer.ip + ":" + configServer.port + "/static/img/" + fields.cover_file)
 
     } else {
@@ -186,12 +187,10 @@ class BookEdit extends React.Component {
       return response.json();
     }).then(function (dataLoaded) {
       
-      console.log(dataLoaded)
       message.success("Saved", self.onClickCancel)
 
     }).catch(function (err) {
-      console.log("ERROR >>>>>")
-      console.log(data)
+
       console.log(err)
     })
 
@@ -245,11 +244,9 @@ class BookEdit extends React.Component {
       return response.json();
     }).then(function (dataLoaded) {
       
-      console.log(dataLoaded)
       message.success("Saved", self.onClickCancel)
 
     }).catch(function (err) {
-      console.log("ERROR >>>>>")
       
       console.log(err)
     })
@@ -259,7 +256,6 @@ class BookEdit extends React.Component {
 
   handleClose = removedTag => {
     const tags = this.state.tags.filter(tag => tag !== removedTag)
-    // console.log(tags)
     this.setState({ tags })
   }
 
@@ -281,7 +277,6 @@ class BookEdit extends React.Component {
     if (inputValue && tags.indexOf(inputValue) === -1) {
       tags = [...tags, inputValue]
     }
-    console.log(tags)
     this.setState({
       tags,
       inputVisible: false,
@@ -306,7 +301,6 @@ class BookEdit extends React.Component {
 
   handleChange = ({ file, fileList }) => {
     const type = file.type
-    console.log("HandleChance")
     console.log(fileList)
 
     if ((type !== 'image/png') && (type !== 'image/jpg') && (type !== 'image/jpeg')) {
@@ -326,7 +320,7 @@ class BookEdit extends React.Component {
   }
 
   addUploadButton = () => {
-    const {upfile} = this.state
+    const {upfile, add} = this.state
 
     if (upfile.length === 0) {
 
@@ -344,7 +338,7 @@ class BookEdit extends React.Component {
 
   render() {
     const { form } = this.props
-    const { add, save, tags, inputVisible, inputValue, uploading, upfile, previewVisible, previewImage, uploadButton } = this.state
+    const { add, save, tags, inputVisible, inputValue, upfile, previewVisible, previewImage, uploadButton } = this.state
     
     const props = {
       onRemove: file => {
@@ -453,8 +447,9 @@ class BookEdit extends React.Component {
                       <div className="form-group">
                         <FormItem label="Book Cover">
                           <Upload
+                            disabled={!add}
                             listType="picture-card"
-                            // fileList={upfile}
+                            fileList={upfile}
                             onPreview={this.handlePreview}
                             // onChange={this.handleChange}
                             {...props}

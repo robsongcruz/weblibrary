@@ -104,7 +104,6 @@ class AuthorEdit extends React.Component {
     const url = "http://" + configServer.ip + ":" + configServer.port + "/api/author/"
 
     const author = {"author": fields}
-    console.log(author)
 
     fetch(url, {
       method: 'POST',
@@ -119,11 +118,10 @@ class AuthorEdit extends React.Component {
       return response.json();
     }).then(function (dataLoaded) {
       
-      console.log(dataLoaded)
       message.success("Saved", self.onClickCancel)
 
     }).catch(function (err) {
-      console.log("ERROR >>>>>")
+      
       console.log(err)
     })
 
@@ -162,11 +160,11 @@ class AuthorEdit extends React.Component {
       return response.json();
     }).then(function (dataLoaded) {
       
-      console.log(dataLoaded)
+      
       message.success("Saved", self.onClickCancel)
 
     }).catch(function (err) {
-      console.log("ERROR >>>>>")
+      
       
       console.log(err)
     })

@@ -19,21 +19,16 @@
 /* eslint-disable camelcase */
 
 import React from 'react'
-import { Table, Icon, Input, Button, message, Tag, Badge, Card, Pagination, Tooltip } from 'antd'
-import { EditOutlined, DeleteOutlined, SettingOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { Table, Icon, Input, Button, message, Tag, Badge, Card, Pagination, Tooltip, Modal, Spin, Empty } from 'antd'
+import { EditOutlined, DeleteOutlined, SettingOutlined, UsergroupAddOutlined } from '@ant-design/icons'
 import { Helmet } from 'react-helmet'
 import configServer from "config.json"
 
 import ProductCard from 'components/CleanUIComponents/ProductCard'
-import { array } from 'prop-types';
+import { array } from 'prop-types'
 
-const { Meta } = Card;
-// import moment from 'moment'
-// import Moment from 'react-moment'
-
-// import table from './data.json'
-
-// import styles from './style.module.scss'
+const { Meta } = Card
+const { Search } = Input
                                                                                                                                                                                                                                                    
 class TitleList extends React.Component {
 
@@ -45,7 +40,11 @@ class TitleList extends React.Component {
 
     page_limit: 10,
     current_page: 0,
-    total_page: 0
+    total_page: 0,
+
+    previewVisible: false,
+    previewImage: '',
+    loading: false
   }
   
   componentDidMount() {
@@ -67,9 +66,6 @@ class TitleList extends React.Component {
 
     const url = "http://" + configServer.ip + ":" + configServer.port + "/api/book/rem"
 
-    console.log(data)
-    console.log(url)
-
     fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -87,7 +83,7 @@ class TitleList extends React.Component {
       message.success("Completed Action", self.handleDeleteBook(book.id))
 
     }).catch(function (err) {
-      console.log("ERROR >>>>>")
+      
       console.log(err)
     })
   }
@@ -108,8 +104,29 @@ class TitleList extends React.Component {
     })
   }
 
-  addBookcard = (book) => {
+  handleCancel = () => {
+    this.setState({ previewVisible: false, previewImage: '' })
+  }
+
+  handleClick = (previewImage) => {
+    
+    this.setState({ previewVisible: true, previewImage })
+  }
+
+  emptyBookcard = () => {
     let { bookcards } = this.state
+    
+    const new_card = (
+    <div className='col-2 d-inline-block text-truncate'>
+      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Data not found" />
+    </div>)
+    
+    bookcards.push(new_card)
+    this.setState({ bookcards })
+  }
+
+  addBookcard = (book) => {
+    let { bookcards, previewVisible } = this.state
     let author = {}
     let str_authors = ""
 
@@ -119,12 +136,13 @@ class TitleList extends React.Component {
         str_authors += author.last_name + ', ' + author.first_name + (i < book.authors.length - 1 ? ' ; ' : '')
       }
     }
-    console.log("http://" + configServer.ip + ":" + configServer.port + "/static/img/" + book.cover_file)
+  
     let new_card =
       <div key={book.id} className='col-2 d-inline-block text-truncate'>
         <Card
           hoverable
           // style={{ width: 200, height: 300 }}
+          onClick={() => this.handleClick("http://" + configServer.ip + ":" + configServer.port + "/static/img/" + book.cover_file)}
           cover={
             <img
               alt={book.title}
@@ -151,30 +169,38 @@ class TitleList extends React.Component {
     let url = ""
 
     url = "http://" + configServer.ip + ":" + configServer.port + "/api/exemplary/full?currentPage=" + page + "&pageSize=" + self.page_limit
-    
-    console.log(url)
 
+    self.setState({ loading: true })
     fetch(url, {
       method: 'GET',
     }).then(function (response) {
       if (response.status >= 400) {
         console.log(response)
         message.error('Bad response from server')
+        self.setState({ loading: false })
         throw new Error("Bad response from server")
       }
       return response.json();
     }).then(function (data_loaded) {
 
-      // let pagination = {current: page, next: data_loaded.links.next, previous: data_loaded.links.previous, total: data_loaded.count}
       const books = data_loaded.results
-
-      console.log("Success GET >>>>>")
       
       self.setState({ books, current_page: page, total:  data_loaded.count})
 
-      self.setState({ bookcards: [] }, () => { books.map((book) => self.addBookcard(book)) })
-
+      if (books.length > 0) {
+        self.setState({ bookcards: [] }, () => { 
+          books.map((book_item) => self.addBookcard(book_item)) 
+          self.setState({ loading: false })
+        })  
+      } else {
+        self.setState({ bookcards: [] }, () => { 
+          self.emptyBookcard()
+          self.setState({ loading: false })
+        })
+      }
+      
     }).catch(function (err) {
+      self.setState({ loading: false })
       console.log(err);
     });
 
@@ -201,8 +227,60 @@ class TitleList extends React.Component {
 
   }
 
+  onSearchBooks = (info_str) => {
+
+    let self = this
+    let url = ""
+
+    url = "http://" + configServer.ip + ":" + configServer.port + "/api/exemplary/title-author?currentPage=1&pageSize=" + self.page_limit
+
+    self.setState({ loading: true })
+
+    let book = {
+      "info": info_str,
+    }
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(book)
+      }).then(function (response) {
+        if (response.status >= 400) {
+          message.error('Bad response from server')
+          self.setState({ loading: false })
+          throw new Error("Bad response from server")
+        }
+        return response.json();
+      }).then(function (data_loaded) {
+      
+        const books = data_loaded.results
+
+        const pagination = {current: 1, total: data_loaded.count}
+      
+        self.setState({ books, pagination})
+
+        if (books.length > 0) {
+          self.setState({ bookcards: [] }, () => { 
+            books.map((book_item) => self.addBookcard(book_item)) 
+            self.setState({ loading: false })
+          })  
+        } else {
+          self.setState({ bookcards: [] }, () => { 
+            self.emptyBookcard()
+            self.setState({ loading: false })
+          })
+        }
+
+
+      }).catch(function (err) {
+        self.setState({ loading: false })
+        console.log(err)
+      });
+
+  }
+
   render() {
-    const { bookcards, current_page, total_page, page_limit } = this.state
+    const { bookcards, current_page, total_page, page_limit, previewVisible, previewImage, loading } = this.state
 
     return (
       <div>
@@ -213,10 +291,23 @@ class TitleList extends React.Component {
               <strong>Books</strong>
             </div>
           </div>
+
           <div className="card-body">
-            <div className="col-lg-12">
-              {bookcards}
-            </div>
+            <div className="row">
+              <div className="col-lg-4">
+                <div className="form-group">
+                  <Search placeholder="Search by title or author..." onSearch={this.onSearchBooks} enterButton />
+                </div>
+              </div>
+            </div><br />
+            <Spin spinning={loading} delay={800}>
+              <div className="col-lg-12">
+                {bookcards}
+              </div>
+            </Spin>
+            <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+              <img alt="Cover" style={{ width: '100%' }} src={previewImage} />
+            </Modal>
           </div>
 
           <div className="col-lg-12">

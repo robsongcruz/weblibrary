@@ -32,6 +32,36 @@ class ExemplaryModel {
         return new DataBaseInterface().query_param(sqlcode, values)
     }
 
+    get_exemplaries_title(current_page, page_size, title) {
+        
+        let sqlcode = `SELECT book.id, book.title, book.subtitle, book.category, book.cover_file,  
+                        ARRAY_AGG(CONCAT('{', '"id":"', author.id, '", ', '"first_name": "', author.first_name, '", ', '"last_name": "', author.last_name, '"}')) as authors,
+                        count(*) OVER() AS full_count FROM book 
+                        LEFT JOIN exemplary ON exemplary.book=book.id 
+                        LEFT JOIN author ON exemplary.author=author.id 
+                        WHERE LOWER(book.title) LIKE LOWER($1) OR LOWER(book.title) LIKE LOWER($1) 
+                        GROUP BY book.id LIMIT $2 OFFSET $3`
+        
+        let values = ['%' + title + '%', page_size, (current_page - 1) * page_size]
+
+        return new DataBaseInterface().query_param(sqlcode, values)
+    }
+
+    get_exemplaries_title_author(current_page, page_size, info) {
+        
+        let sqlcode = `SELECT book.id, book.title, book.subtitle, book.category, book.cover_file,  
+                        ARRAY_AGG(CONCAT('{', '"id":"', author.id, '", ', '"first_name": "', author.first_name, '", ', '"last_name": "', author.last_name, '"}')) as authors,
+                        count(*) OVER() AS full_count FROM book 
+                        LEFT JOIN exemplary ON exemplary.book=book.id 
+                        LEFT JOIN author ON exemplary.author=author.id 
+                        WHERE LOWER(author.first_name) LIKE LOWER($1) OR LOWER(author.last_name) LIKE LOWER($1) OR LOWER(book.title) LIKE LOWER($1) 
+                        GROUP BY book.id LIMIT $2 OFFSET $3`
+        
+        let values = ['%' + info + '%', page_size, (current_page - 1) * page_size]
+
+        return new DataBaseInterface().query_param(sqlcode, values)
+    }
+
     get_book_by_author(id) {
 
         let sqlcode = 'SELECT book.id, book.title, count(*) OVER() AS full_count FROM exemplary ' 

@@ -36,6 +36,58 @@ module.exports = function(app){
             })
     })
 
+    app.post('/api/exemplary/title', async (req, res, next) => {
+
+        const input_data = req.body;
+        const current_page = parseInt(req.query.currentPage)
+        const page_size = parseInt(req.query.pageSize)
+
+        if (input_data !== undefined)  {
+                
+            const result = new ExemplaryModel().get_exemplaries_title(current_page, page_size, input_data.title)
+            .then(function(result) {
+                let form_result = {
+                    "count": result[0] === undefined ? 0 : result[0].full_count,
+                    "results": result
+                }
+                console.log(input_data)
+                return res.json(form_result)
+            }).catch(function(err) {
+                console.log(err)
+            })
+
+        } else {
+            return res.status(400).end()
+        }
+
+    })
+
+    app.post('/api/exemplary/title-author', async (req, res, next) => {
+
+        const input_data = req.body;
+        const current_page = parseInt(req.query.currentPage)
+        const page_size = parseInt(req.query.pageSize)
+
+        if (input_data !== undefined)  {
+                
+            const result = new ExemplaryModel().get_exemplaries_title_author(current_page, page_size, input_data.info)
+            .then(function(result) {
+                let form_result = {
+                    "count": result[0] === undefined ? 0 : result[0].full_count,
+                    "results": result
+                }
+                return res.json(form_result)
+            }).catch(function(err) {
+                console.log(err)
+            })
+
+        } else {
+            return res.status(400).end()
+        }
+
+    })
+
+
     app.get('/api/exemplary/author/:id', async (req, res, next) => {
         const id = parseInt(req.params.id)
         const result = new ExemplaryModel().get_book_by_author(id)
